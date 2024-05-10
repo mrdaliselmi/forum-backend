@@ -1,8 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createClerkClient } from '@clerk/clerk-sdk-node';
 import { PaginationOptions } from 'src/dtos/paginationParams.dto';
 import * as jwt from 'jsonwebtoken';
+import { Request } from 'express';
 @Injectable()
 export class ClerkService {
   private readonly clerk: any;
@@ -28,18 +33,17 @@ export class ClerkService {
 
   async validateToken(req) {
     const publicKey = this.configService.get('clerk.publicKey');
-    console.log(publicKey);
-    const token = req.headers.authorization.replace('Bearer ', '').trim();
-    console.log(token);
+    const token = req.headers?.authorization?.replace('Bearer ', '').trim();
+    if (!token) {
+      throw new HttpException('Unauthorized Exception', 401);
+    }
     try {
-      let decoded = '';
-      if (token) {
-        decoded = jwt.verify(token, publicKey);
-        return { sessToken: decoded };
-      }
-      return;
-    } catch (error) {
-      throw new Error(error);
+      const decoded = jwt.verify(token, publicKey, {
+        algorithms: ['RS256'],
+      });
+      return decoded;
+    } catch {
+      throw new UnauthorizedException();
     }
   }
 }
