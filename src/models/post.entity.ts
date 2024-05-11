@@ -26,7 +26,7 @@ export class Post extends GenericEntity {
   @OneToMany(() => Answer, (answer) => answer.post)
   answers: Answer[];
 
-  @ManyToMany(() => Tag, (tag) => tag.posts)
+  @ManyToMany(() => Tag, (tag) => tag.posts, { cascade: true })
   @JoinTable()
   tags: Tag[];
 }

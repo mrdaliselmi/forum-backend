@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import GLOBAL_CONFIG from './config/';
 import { ClerkService } from './clerk/clerk.service';
 import { ClerkModule } from './clerk/clerk.module';
+import { PostsModule } from './posts/posts.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { ClerkModule } from './clerk/clerk.module';
       }),
     }),
     ClerkModule,
+    PostsModule,
   ],
   controllers: [AppController],
   providers: [ConfigService, AppService, ClerkService],
