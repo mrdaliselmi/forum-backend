@@ -8,10 +8,13 @@ export class Answer extends GenericEntity {
   creatorId: string;
 
   @Column()
-  title: string;
-
-  @Column()
   content: string;
+
+  @Column({ default: 0 })
+  upVotes: number;
+
+  @Column({ default: 0 })
+  downVotes: number;
 
   @ManyToOne(() => Post, (post) => post.answers)
   post: Post;

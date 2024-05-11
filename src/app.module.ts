@@ -7,6 +7,7 @@ import GLOBAL_CONFIG from './config/';
 import { ClerkService } from './clerk/clerk.service';
 import { ClerkModule } from './clerk/clerk.module';
 import { PostsModule } from './posts/posts.module';
+import { AnswersModule } from './answers/answers.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { PostsModule } from './posts/posts.module';
     }),
     ClerkModule,
     PostsModule,
+    AnswersModule,
   ],
   controllers: [AppController],
   providers: [ConfigService, AppService, ClerkService],
