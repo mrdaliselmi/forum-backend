@@ -57,10 +57,12 @@ export class PostsService {
   }
 
   async findOne(id: number) {
-    return await this.postRepository.findOne({
+    const post = await this.postRepository.findOne({
       where: { id: id },
       relations: ['tags', 'answers'],
     });
+    this.postRepository.save({ ...post, views: post.views++ });
+    return post;
   }
 
   async update(id: number, updatePostDto: UpdatePostDto, user: UserInfo) {
@@ -100,5 +102,23 @@ export class PostsService {
       throw new UnauthorizedException('you are not the creator of this post');
     }
     return await this.postRepository.softDelete({ id: id });
+  }
+
+  async upVote(id: number) {
+    const post = await this.postRepository.findOne({
+      where: { id: id },
+    });
+    if (!post) throw new NotFoundException('post not found');
+    post.upVotes += 1;
+    return await this.postRepository.save(post);
+  }
+
+  async downVote(id: number) {
+    const post = await this.postRepository.findOne({
+      where: { id: id },
+    });
+    if (!post) throw new NotFoundException('post not found');
+    post.downVotes += 1;
+    return await this.postRepository.save(post);
   }
 }
