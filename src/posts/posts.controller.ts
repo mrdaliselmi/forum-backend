@@ -8,6 +8,7 @@ import {
   UseGuards,
   Query,
   Put,
+  Patch,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -25,6 +26,18 @@ export class PostsController {
   @Post()
   create(@Body() createPostDto: CreatePostDto, @CurrentUser() user: UserInfo) {
     return this.postsService.create(createPostDto, user);
+  }
+
+  @UseGuards(ClerkAuthGuard)
+  @Patch('upvote/:id')
+  upvote(@Param('id') id: string) {
+    return this.postsService.upVote(+id);
+  }
+
+  @UseGuards(ClerkAuthGuard)
+  @Patch('downvote/:id')
+  downVote(@Param('id') id: string) {
+    return this.postsService.downVote(+id);
   }
 
   @Get()
