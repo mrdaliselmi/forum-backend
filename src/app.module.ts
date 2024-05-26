@@ -8,6 +8,7 @@ import { ClerkService } from './clerk/clerk.service';
 import { ClerkModule } from './clerk/clerk.module';
 import { PostsModule } from './posts/posts.module';
 import { AnswersModule } from './answers/answers.module';
+import { TagsModule } from './tags/tags.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { AnswersModule } from './answers/answers.module';
     ClerkModule,
     PostsModule,
     AnswersModule,
+    TagsModule,
   ],
   controllers: [AppController],
   providers: [ConfigService, AppService, ClerkService],
