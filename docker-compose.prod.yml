@@ -10,8 +10,12 @@ services:
       - PORT=3000
       - NODE_ENV=production
       - DB_HOST=mysql_db
+      - RABBITMQ_HOST=amqp://rabbitmq:5672
+      - RABBITMQ_NOTIF_QUEUE=notif-queue
+      - RABBITMQ_DURABLE=true
     depends_on:
       - mysql_db
+      - rabbitmq
 
   mysql_db:
     image: mysql
@@ -24,3 +28,17 @@ services:
       MYSQL_TCP_PORT: 3306
     ports:
       - "3306:3306"
+  
+  rabbitmq:
+    image: rabbitmq:3.12.14-management
+    container_name: rabbitmq-9anounGPT
+    restart: always
+    hostname: rabbitmq
+    ports:
+      - 5672:5672  
+      - 15672:15672  
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq  
+  
+volumes:
+  rabbitmq_data:

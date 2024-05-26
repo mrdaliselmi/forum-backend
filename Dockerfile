@@ -9,7 +9,7 @@ RUN npm install
 
 COPY . .
 
-COPY .env .env.development ./
+COPY .env ./
 
 EXPOSE 3000
 
