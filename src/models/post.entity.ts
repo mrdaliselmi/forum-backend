@@ -2,6 +2,7 @@ import { Column, Entity, JoinTable, ManyToMany, OneToMany } from 'typeorm';
 import { GenericEntity } from './shared/generic.entity';
 import { Answer } from './answer.entity';
 import { Tag } from './tag.entity';
+import { Vote } from './vote.entity';
 
 @Entity()
 export class Post extends GenericEntity {
@@ -17,11 +18,8 @@ export class Post extends GenericEntity {
   @Column({ default: 0 })
   views: number;
 
-  @Column({ default: 0 })
-  upVotes: number;
-
-  @Column({ default: 0 })
-  downVotes: number;
+  @OneToMany(() => Vote, (vote) => vote.post)
+  votes: Vote[];
 
   @OneToMany(() => Answer, (answer) => answer.post)
   answers: Answer[];

@@ -24,6 +24,7 @@ async function bootstrap() {
       },
     },
   });
+  app.enableCors(configService.get('app.cors'));
   app.setGlobalPrefix(configService.get('app.prefix'));
   app.useGlobalPipes(new ValidationPipe());
   await app.startAllMicroservices();
