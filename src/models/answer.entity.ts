@@ -11,7 +11,7 @@ export class Answer extends GenericEntity {
   @Column()
   content: string;
 
-  @OneToMany(() => Vote, (vote) => vote.answer)
+  @OneToMany(() => Vote, (vote) => vote.answer, { eager: true })
   votes: Vote[];
 
   @ManyToOne(() => Post, (post) => post.answers)
