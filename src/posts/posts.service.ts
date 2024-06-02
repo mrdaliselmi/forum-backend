@@ -13,12 +13,14 @@ import { Tag } from 'src/models/tag.entity';
 import { FindAllParams } from 'src/interfaces/find-all.interface';
 import { paginate } from 'src/helpers/paginate';
 import { isCreator } from 'src/helpers/isCreator';
+import { Vote } from 'src/models/vote.entity';
 
 @Injectable()
 export class PostsService {
   constructor(
     @InjectRepository(Post) private postRepository: Repository<Post>,
     @InjectRepository(Tag) private tagRepository: Repository<Tag>,
+    @InjectRepository(Vote) private voteRepository: Repository<Vote>,
   ) {}
 
   async create(createPostDto: CreatePostDto, user: UserInfo) {
@@ -53,13 +55,13 @@ export class PostsService {
         { content: ILike(`%${params.search}%`) },
       ]);
     }
-    return await paginate(this.postRepository, params, {});
+    return await paginate(this.postRepository, params, {}, ['tags', 'votes']);
   }
 
   async findOne(id: number) {
     const post = await this.postRepository.findOne({
       where: { id: id },
-      relations: ['tags', 'answers'],
+      relations: ['tags', 'answers', 'votes'],
     });
     this.postRepository.save({ ...post, views: post.views++ });
     return post;
@@ -104,21 +106,31 @@ export class PostsService {
     return await this.postRepository.softDelete({ id: id });
   }
 
-  async upVote(id: number) {
+  async upVote(id: number, user: UserInfo) {
     const post = await this.postRepository.findOne({
       where: { id: id },
     });
     if (!post) throw new NotFoundException('post not found');
-    post.upVotes += 1;
-    return await this.postRepository.save(post);
+    const vote = this.voteRepository.create({
+      userId: user.user_id,
+      post: post,
+      type: 'up',
+    });
+    await this.voteRepository.save(vote);
+    return;
   }
 
-  async downVote(id: number) {
+  async downVote(id: number, user: UserInfo) {
     const post = await this.postRepository.findOne({
       where: { id: id },
     });
     if (!post) throw new NotFoundException('post not found');
-    post.downVotes += 1;
-    return await this.postRepository.save(post);
+    const vote = this.voteRepository.create({
+      userId: user.user_id,
+      post: post,
+      type: 'down',
+    });
+    await this.voteRepository.save(vote);
+    return;
   }
 }

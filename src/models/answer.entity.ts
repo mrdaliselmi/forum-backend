@@ -1,6 +1,7 @@
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 import { GenericEntity } from './shared/generic.entity';
 import { Post } from './post.entity';
+import { Vote } from './vote.entity';
 
 @Entity()
 export class Answer extends GenericEntity {
@@ -10,11 +11,8 @@ export class Answer extends GenericEntity {
   @Column()
   content: string;
 
-  @Column({ default: 0 })
-  upVotes: number;
-
-  @Column({ default: 0 })
-  downVotes: number;
+  @OneToMany(() => Vote, (vote) => vote.answer)
+  votes: Vote[];
 
   @ManyToOne(() => Post, (post) => post.answers)
   post: Post;
