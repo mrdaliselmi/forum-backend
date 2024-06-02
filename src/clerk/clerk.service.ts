@@ -7,7 +7,6 @@ import { ConfigService } from '@nestjs/config';
 import { createClerkClient } from '@clerk/clerk-sdk-node';
 import { PaginationOptions } from 'src/dtos/paginationParams.dto';
 import * as jwt from 'jsonwebtoken';
-import { Request } from 'express';
 @Injectable()
 export class ClerkService {
   private readonly clerk: any;

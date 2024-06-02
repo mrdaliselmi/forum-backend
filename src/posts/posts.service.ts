@@ -14,6 +14,7 @@ import { FindAllParams } from 'src/interfaces/find-all.interface';
 import { paginate } from 'src/helpers/paginate';
 import { isCreator } from 'src/helpers/isCreator';
 import { Vote } from 'src/models/vote.entity';
+import { ClerkService } from 'src/clerk/clerk.service';
 
 @Injectable()
 export class PostsService {
@@ -21,6 +22,7 @@ export class PostsService {
     @InjectRepository(Post) private postRepository: Repository<Post>,
     @InjectRepository(Tag) private tagRepository: Repository<Tag>,
     @InjectRepository(Vote) private voteRepository: Repository<Vote>,
+    private readonly clerkService: ClerkService,
   ) {}
 
   async create(createPostDto: CreatePostDto, user: UserInfo) {
@@ -55,7 +57,20 @@ export class PostsService {
         { content: ILike(`%${params.search}%`) },
       ]);
     }
-    return await paginate(this.postRepository, params, {}, ['tags', 'votes']);
+    const result = await paginate(this.postRepository, params, {}, [
+      'tags',
+      'votes',
+      'answers',
+    ]);
+    const posts = [];
+    for (const post of result[0]) {
+      posts.push({
+        ...post,
+        user: await this.clerkService.findOne(post.creatorId),
+      });
+    }
+    result[0] = posts;
+    return result;
   }
 
   async findOne(id: number) {
@@ -63,8 +78,12 @@ export class PostsService {
       where: { id: id },
       relations: ['tags', 'answers', 'votes'],
     });
+    const result = {
+      ...post,
+      user: await this.clerkService.findOne(post.creatorId),
+    };
     this.postRepository.save({ ...post, views: post.views++ });
-    return post;
+    return result;
   }
 
   async update(id: number, updatePostDto: UpdatePostDto, user: UserInfo) {

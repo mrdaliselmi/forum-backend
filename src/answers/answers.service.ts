@@ -14,6 +14,7 @@ import { isCreator } from 'src/helpers/isCreator';
 import { paginate } from 'src/helpers/paginate';
 import { FindAllParams } from 'src/interfaces/find-all.interface';
 import { Vote } from 'src/models/vote.entity';
+import { ClerkService } from 'src/clerk/clerk.service';
 
 @Injectable()
 export class AnswersService {
@@ -21,6 +22,7 @@ export class AnswersService {
     @InjectRepository(Answer) private answerRepository: Repository<Answer>,
     @InjectRepository(Post) private postRepository: Repository<Post>,
     @InjectRepository(Vote) private voteRepository: Repository<Vote>,
+    private readonly clerkService: ClerkService,
   ) {}
 
   async create(
@@ -39,7 +41,7 @@ export class AnswersService {
   }
 
   async findAll(postId: number, params: FindAllParams) {
-    return await paginate(
+    const result = await paginate(
       this.answerRepository,
       params,
       {
@@ -47,6 +49,15 @@ export class AnswersService {
       },
       ['votes'],
     );
+    const answers = [];
+    for (const answer of result[0]) {
+      answers.push({
+        ...answer,
+        user: await this.clerkService.findOne(answer.creatorId),
+      });
+    }
+    result[0] = answers;
+    return result;
   }
 
   async findOne(id: number) {
@@ -55,7 +66,11 @@ export class AnswersService {
       relations: ['post', 'votes'],
     });
     if (!answer) throw new NotFoundException('Answer not found');
-    return answer;
+    const result = {
+      ...answer,
+      user: await this.clerkService.findOne(answer.creatorId),
+    };
+    return result;
   }
 
   async update(id: number, updateAnswerDto: UpdateAnswerDto, user: UserInfo) {
