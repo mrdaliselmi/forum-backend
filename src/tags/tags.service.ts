@@ -10,7 +10,7 @@ export class TagsService {
   constructor(@InjectRepository(Tag) private tagRepository: Repository<Tag>) {}
 
   async findAll(params: FindAllParams) {
-    return await paginate(this.tagRepository, params, {});
+    return await paginate(this.tagRepository, params, {}, ['posts']);
   }
 
   async findOne(name: string) {

@@ -12,7 +12,10 @@ export class Post extends GenericEntity {
   @Column()
   title: string;
 
-  @Column()
+  @Column({
+    type: 'varchar',
+    length: 1000,
+  })
   content: string;
 
   @Column({ default: 0 })

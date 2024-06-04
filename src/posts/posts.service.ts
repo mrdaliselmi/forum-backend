@@ -51,17 +51,58 @@ export class PostsService {
   }
 
   async findAll(params: FindAllParams) {
+    let result = [];
     if (params.search) {
-      return await paginate(this.postRepository, params, [
-        { title: ILike(`%${params.search}%`) },
-        { content: ILike(`%${params.search}%`) },
+      const regex = /^\[.*\]$/;
+      if (regex.test(params.search)) {
+        result = await paginate(
+          this.postRepository,
+          params,
+          [
+            {
+              tags: { name: params.search.slice(1, -1) },
+            },
+          ],
+          ['tags', 'votes', 'answers'],
+        );
+      } else {
+        result = await paginate(
+          this.postRepository,
+          params,
+          [
+            { title: ILike(`%${params.search}%`) },
+            { content: ILike(`%${params.search}%`) },
+          ],
+          ['tags', 'votes', 'answers'],
+        );
+      }
+    } else {
+      result = await paginate(this.postRepository, params, {}, [
+        'tags',
+        'votes',
+        'answers',
       ]);
     }
-    const result = await paginate(this.postRepository, params, {}, [
-      'tags',
-      'votes',
-      'answers',
-    ]);
+    const posts = [];
+    for (const post of result[0]) {
+      posts.push({
+        ...post,
+        user: await this.clerkService.findOne(post.creatorId),
+      });
+    }
+    result[0] = posts;
+    return result;
+  }
+
+  async findAllByUserId(userId: string, params) {
+    const result = await paginate(
+      this.postRepository,
+      params,
+      {
+        creatorId: userId,
+      },
+      ['tags', 'votes', 'answers'],
+    );
     const posts = [];
     for (const post of result[0]) {
       posts.push({
