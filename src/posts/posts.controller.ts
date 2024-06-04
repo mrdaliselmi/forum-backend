@@ -45,6 +45,11 @@ export class PostsController {
     return this.postsService.findAll(params);
   }
 
+  @Get('user/:userId')
+  findAllByUserId(@Param('userId') userId, @Query() params: FindAllParams) {
+    return this.postsService.findAllByUserId(userId, params);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.postsService.findOne(+id);

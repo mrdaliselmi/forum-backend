@@ -8,7 +8,10 @@ export class Answer extends GenericEntity {
   @Column()
   creatorId: string;
 
-  @Column()
+  @Column({
+    type: 'varchar',
+    length: 1000,
+  })
   content: string;
 
   @OneToMany(() => Vote, (vote) => vote.answer, { eager: true })

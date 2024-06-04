@@ -28,6 +28,6 @@ async function bootstrap() {
   app.setGlobalPrefix(configService.get('app.prefix'));
   app.useGlobalPipes(new ValidationPipe());
   await app.startAllMicroservices();
-  await app.listen(configService.get('app.port'));
+  await app.listen(configService.get('app.port', '0.0.0.0'));
 }
 bootstrap();

@@ -29,6 +29,7 @@ export class AnswersController {
     @Param('PostId') id: string,
     @CurrentUser() user: UserInfo,
   ) {
+    console.log('user', user);
     return this.answersService.create(+id, createAnswerDto, user);
   }
 
