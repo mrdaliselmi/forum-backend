@@ -1,0 +1,44 @@
+services:
+  backend-api-prod:
+    image: forum-api
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - NODE_ENV=production
+      - DB_HOST=mysql_db
+      - RABBITMQ_HOST=amqp://rabbitmq:5672
+      - RABBITMQ_NOTIF_QUEUE=notif-queue
+      - RABBITMQ_DURABLE=true
+    depends_on:
+      - mysql_db
+      - rabbitmq
+
+  mysql_db:
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: test
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+      MYSQL_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_TCP_PORT: 3306
+    ports:
+      - "3306:3306"
+  
+  rabbitmq:
+    image: rabbitmq:3.12.14-management
+    container_name: rabbitmq-9anounGPT
+    restart: always
+    hostname: rabbitmq
+    ports:
+      - 5672:5672  
+      - 15672:15672  
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq  
+  
+volumes:
+  rabbitmq_data:

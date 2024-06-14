@@ -29,6 +29,7 @@ export class AnswersController {
     @Param('PostId') id: string,
     @CurrentUser() user: UserInfo,
   ) {
+    console.log('user', user);
     return this.answersService.create(+id, createAnswerDto, user);
   }
 
@@ -60,13 +61,13 @@ export class AnswersController {
 
   @UseGuards(ClerkAuthGuard)
   @Patch('upvote/:id')
-  upVote(@Param('id') id: string) {
-    return this.answersService.upVote(+id);
+  upVote(@Param('id') id: string, @CurrentUser() user: UserInfo) {
+    return this.answersService.upVote(+id, user);
   }
 
   @UseGuards(ClerkAuthGuard)
   @Patch('downvote/:id')
-  downVote(@Param('id') id: string) {
-    return this.answersService.downVote(+id);
+  downVote(@Param('id') id: string, @CurrentUser() user: UserInfo) {
+    return this.answersService.downVote(+id, user);
   }
 }

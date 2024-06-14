@@ -30,19 +30,24 @@ export class PostsController {
 
   @UseGuards(ClerkAuthGuard)
   @Patch('upvote/:id')
-  upvote(@Param('id') id: string) {
-    return this.postsService.upVote(+id);
+  upvote(@Param('id') id: string, @CurrentUser() user: UserInfo) {
+    return this.postsService.upVote(+id, user);
   }
 
   @UseGuards(ClerkAuthGuard)
   @Patch('downvote/:id')
-  downVote(@Param('id') id: string) {
-    return this.postsService.downVote(+id);
+  downVote(@Param('id') id: string, @CurrentUser() user: UserInfo) {
+    return this.postsService.downVote(+id, user);
   }
 
   @Get()
   findAll(@Query() params: FindAllParams) {
     return this.postsService.findAll(params);
+  }
+
+  @Get('user/:userId')
+  findAllByUserId(@Param('userId') userId, @Query() params: FindAllParams) {
+    return this.postsService.findAllByUserId(userId, params);
   }
 
   @Get(':id')

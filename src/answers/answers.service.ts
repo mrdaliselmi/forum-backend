@@ -13,12 +13,16 @@ import { Post } from 'src/models/post.entity';
 import { isCreator } from 'src/helpers/isCreator';
 import { paginate } from 'src/helpers/paginate';
 import { FindAllParams } from 'src/interfaces/find-all.interface';
+import { Vote } from 'src/models/vote.entity';
+import { ClerkService } from 'src/clerk/clerk.service';
 
 @Injectable()
 export class AnswersService {
   constructor(
     @InjectRepository(Answer) private answerRepository: Repository<Answer>,
     @InjectRepository(Post) private postRepository: Repository<Post>,
+    @InjectRepository(Vote) private voteRepository: Repository<Vote>,
+    private readonly clerkService: ClerkService,
   ) {}
 
   async create(
@@ -37,18 +41,36 @@ export class AnswersService {
   }
 
   async findAll(postId: number, params: FindAllParams) {
-    return await paginate(this.answerRepository, params, {
-      post: { id: postId },
-    });
+    const result = await paginate(
+      this.answerRepository,
+      params,
+      {
+        post: { id: postId },
+      },
+      ['votes'],
+    );
+    const answers = [];
+    for (const answer of result[0]) {
+      answers.push({
+        ...answer,
+        user: await this.clerkService.findOne(answer.creatorId),
+      });
+    }
+    result[0] = answers;
+    return result;
   }
 
   async findOne(id: number) {
     const answer = await this.answerRepository.findOne({
       where: { id: id },
-      relations: ['post'],
+      relations: ['post', 'votes'],
     });
     if (!answer) throw new NotFoundException('Answer not found');
-    return answer;
+    const result = {
+      ...answer,
+      user: await this.clerkService.findOne(answer.creatorId),
+    };
+    return result;
   }
 
   async update(id: number, updateAnswerDto: UpdateAnswerDto, user: UserInfo) {
@@ -70,21 +92,27 @@ export class AnswersService {
     return await this.answerRepository.softDelete(id);
   }
 
-  async upVote(id: number) {
+  async upVote(id: number, user: UserInfo) {
     const answer = await this.answerRepository.findOne({ where: { id: id } });
     if (!answer) throw new NotFoundException('Answer not found');
-    return await this.answerRepository.save({
-      ...answer,
-      upVotes: answer.upVotes + 1,
+    const vote = this.voteRepository.create({
+      userId: user.user_id,
+      answer: answer,
+      type: 'up',
     });
+    await this.voteRepository.save(vote);
+    return;
   }
 
-  async downVote(id: number) {
+  async downVote(id: number, user: UserInfo) {
     const answer = await this.answerRepository.findOne({ where: { id: id } });
     if (!answer) throw new NotFoundException('Answer not found');
-    return await this.answerRepository.save({
-      ...answer,
-      downVotes: answer.downVotes + 1,
+    const vote = this.voteRepository.create({
+      userId: user.user_id,
+      answer: answer,
+      type: 'down',
     });
+    await this.voteRepository.save(vote);
+    return;
   }
 }

@@ -6,9 +6,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Tag } from 'src/models/tag.entity';
 import { ClerkModule } from 'src/clerk/clerk.module';
 import { ClerkService } from 'src/clerk/clerk.service';
+import { Vote } from 'src/models/vote.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Post, Tag]), ClerkModule],
+  imports: [TypeOrmModule.forFeature([Post, Tag, Vote]), ClerkModule],
   controllers: [PostsController],
   providers: [PostsService, ClerkService],
 })
